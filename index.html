@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<title>Jerktar</title>
+	<link rel="stylesheet" href="/css/style.css" type="text/css" media="screen" title="no title" charset="utf-8">
+
+	<script type="application/javascript" charset="utf-8">
+		
+		// December 3rd, 2010 - 22:22
+		// The Doobie Brothers - Takin' It To The Streets
+		// 21st and Mission Streetish, San Francisco, CA 94110
+		
+		// this is my first ever attempt at html5, i threw a little particle system and 
+		// gravity dealie together.  i used to find OOP beyond me, i was mired in thinking
+		// about things as linear functions.  i'm still not great, but how quickly this came
+		// together from concept to creation is encouraging.  i'm not sure what this'll be.
+		
+		// I was thinking about leisure suit larry for some reason.  I kinda imagined myself,
+		// sitting in this bed, but in horrible CGA sprite form.  It's not a bad way to tell this
+		// story, you know?  not a bad way to communicate something about my life right now to
+		// another person.
+		
+		// An adventure game is kinda a cool way to tell a real story, or have a journal,
+		// but it's too gimicky forever.  But it could be fun for a while, and I know there's parts
+		// I'd want to keep, or that I'd want to hide as easter eggs, or that I'd wanna reference,
+		// you know?
+		
+		// I wonder how long this will last.
+		
+		var canvas;
+		var canvasWidth = 630;
+		var canvasHeight = 264;
+		
+		var counter = 0;
+		var particleSize = 3; 
+		var particleCount = 100;
+		var particleMaxVel = 5;
+		
+		var gravity = .1;
+		
+		var velX = 5;
+		var velY = 5;
+		var xPos = 0;
+		var yPos = 0;
+
+		var particleArray = new Array();
+		
+		var jerktar_sprite = document.createElement("img");
+		var jerktarParticle = new Particle();
+		
+		function init() {
+			canvas = document.getElementById("jerktar");
+			jerktar_sprite.setAttribute("src", "art/jerktar_sprite.png");
+			for(var i = 0; i < particleCount; i++) {
+				particleArray[i] = new Particle();
+			}
+			draw();
+			setInterval(draw, 22);
+		}
+		
+		function Particle() {
+			this.x = Math.floor(Math.random() * (canvasWidth - particleSize));
+			this.y = Math.floor(Math.random() * (canvasHeight - particleSize)); 
+			
+			this.velX = 0;
+			this.velY = 0;
+			
+			while(this.velX == 0 || this.velY == 0) {
+				if(this.velX == 0) {
+					this.velX = Math.floor((Math.random() * particleMaxVel) - (particleMaxVel / 2));
+				}
+				if(this.velY == 0) {
+					this.velY = Math.floor((Math.random() * particleMaxVel) - (particleMaxVel / 2));
+				}
+			}
+			
+			this.move = move;
+			this.applyGravity = applyGravity;
+		}
+		
+		function applyGravity() {
+			this.velY += gravity;
+			if(this.velY > particleMaxVel) {
+				this.velY = particleMaxVel;
+			}
+		}
+		
+		function move() {
+
+			this.applyGravity();
+
+			this.x += this.velX;
+			this.y += this.velY;
+			
+			if(this.x + particleSize > canvasWidth || this.x <= 0) {
+				this.velX *= -1;
+			}
+			
+			if(this.y + particleSize > canvasHeight || this.y <= 0) {
+				this.velY *= -1;
+			}
+			
+			if(this.x + particleSize > canvasWidth) {
+				this.x = canvasWidth - particleSize;
+			} else if(this.x < 0) {
+				this.x = 0;
+			}
+			
+			if(this.y + particleSize > canvasHeight) {
+				this.y = canvasHeight - particleSize;
+			} else if(this.y < 0) {
+				this.y = 0;
+			}
+			
+		}
+		
+		function draw() {
+			if(canvas.getContext) {
+				var ctx = canvas.getContext("2d");
+				ctx.canvas.width  = canvasWidth;
+				ctx.canvas.height = canvasHeight;
+				ctx.clearRect(0,0,canvasWidth,canvasHeight);
+				ctx.fillStyle = "rgb(200,200,200)";
+				jerktarParticle.move();
+				ctx.drawImage(jerktar_sprite, jerktarParticle.x, jerktarParticle.y);
+				for(var i = 0; i < particleArray.length; i++) {
+					particleArray[i].move();	
+					ctx.fillRect(particleArray[i].x, particleArray[i].y, particleSize, particleSize );
+				}				
+			}
+		}
+	</script>
+</head>
+<body onLoad="init();">
+	<div class="container">
+		<div id="header">
+			<h1>Jerktar</h1>
+		</div>
+		<div id="content">
+			
+			<h2>The Beginning</h2>
+			
+			<canvas id="jerktar">
+				
+			</canvas>
+			<p>This site is going to be sort of a journal, in version-controlled code form.  Every day you'll see today's version of the code,
+				and you can go back and see older ones.  For now, this is just a flat html file, but I think I'll have a CMS eventually.</p>
+		
+			<p>Or maybe not.</p>
+	
+			<p>Maybe each entry should be the actual files from that day.  That'll take a lot of space eventually.  Though I only need to post the
+				changes at the end of the day.  I may even post code that's broken, it's gotta be what it is each day.</p>
+		
+			<p>I think there's a beauty to the way code is stored in repositories.  It's incredible to have a record of all the different slices
+				of an idea like that.  In the comments of my code, there's a story of how I learned to do these things.  Generally, you just
+				see a final product, compiled and delivered.  Blogs are blogs, and games are games.  Who would ever want to play an old
+				version of a game?  Isn't it always just getting better?</p>
+		
+			<p>But what if the versions weren't just linear improvements?  What if a game's development was <em>the whole point</em>, and its 
+				evolution over time the real story.</p>
+	
+			<p>Versions are beautiful.  Every person is a repository of memories.  Constantly making new ones, and forgetting old ones.
+				You basically are your memories, and so you shift and change over time.  It's not an entirely cumulative process.  It's
+				a process of sacrifice and creation.  You stop growing physically when you're around 20.  From that point on, you're just
+				cycling cells.  You're dying, and being replaced.</p>
+		
+			<p>I got this idea in San Francisco, California.  I just moved here on Saturday, November 27th
+				2010.  It's December 3rd today, so I'm still in my first week.  It's fun when people ask me when I moved here to be able to
+				just say a day of the week.  I am surprised I moved so far away after living in Philadelphia so long.  I didn't think I had
+				it in me.  But here I go, creating and destroying.  This is a repository of that process.</p>
+				
+			<p class="signature">Yours,<br />
+				Jerktar</p>
+		</div>
+		<div id="canvas">
+			
+		</div>
+	</div>
+</body>
+</html>

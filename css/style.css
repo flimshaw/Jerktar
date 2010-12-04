@@ -1,0 +1,7 @@
+body { background-color: #FEE; font-family: courier new, courier, fixed-width; color: #333; }
+
+body > .container { width: 950px; margin: 0 auto; }
+
+#content { width: 630px; margin: 0 10px 0 0; float: left; }
+
+#jerktar { width: 630px;  height: 264px; background-color: #333 }
