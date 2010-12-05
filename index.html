@@ -5,29 +5,9 @@
 	<title>Jerktar</title>
 	<link rel="stylesheet" href="/css/style.css" type="text/css" media="screen" title="no title" charset="utf-8">
 
+	<script src="/js/jquery-1.4.4.min.js" type="text/javascript" charset="utf-8"></script>
 	<script type="application/javascript" charset="utf-8">
-		
-		// December 3rd, 2010 - 22:22
-		// The Doobie Brothers - Takin' It To The Streets
-		// 21st and Mission Streetish, San Francisco, CA 94110
-		
-		// this is my first ever attempt at html5, i threw a little particle system and 
-		// gravity dealie together.  i used to find OOP beyond me, i was mired in thinking
-		// about things as linear functions.  i'm still not great, but how quickly this came
-		// together from concept to creation is encouraging.  i'm not sure what this'll be.
-		
-		// I was thinking about leisure suit larry for some reason.  I kinda imagined myself,
-		// sitting in this bed, but in horrible CGA sprite form.  It's not a bad way to tell this
-		// story, you know?  not a bad way to communicate something about my life right now to
-		// another person.
-		
-		// An adventure game is kinda a cool way to tell a real story, or have a journal,
-		// but it's too gimicky forever.  But it could be fun for a while, and I know there's parts
-		// I'd want to keep, or that I'd want to hide as easter eggs, or that I'd wanna reference,
-		// you know?
-		
-		// I wonder how long this will last.
-		
+
 		var canvas;
 		var canvasWidth = 630;
 		var canvasHeight = 264;
@@ -37,7 +17,8 @@
 		var particleCount = 100;
 		var particleMaxVel = 5;
 		
-		var gravity = .1;
+		var gravity = .5;
+		var friction = .05;
 		
 		var velX = 5;
 		var velY = 5;
@@ -46,17 +27,93 @@
 
 		var particleArray = new Array();
 		
+		var stringArray = new Array(
+			"What was that MLK speech?",
+			"\"And I've looked over. And I've seen the promised land.",
+			"I may not get there with you. But I want you to know tonight,",
+			"that we, as a people, will get to the promised land.",
+			"And I'm happy, tonight.",
+			"I'm not worried about anything.",
+			"I'm not fearing any man.\"",
+			"**SIGH**",
+			"Someday, Starfleet Headquarters will be here."			
+		);
+		
+		var string1 = "Someday, Starfleet Headquarters will be here.";
+		var string2 = "And I've looked over. And I've seen the promised land. I may not get there with you. But I want you to know tonight, that we, as a people, will get to the promised land. And I'm happy, tonight. I'm not worried about anything. I'm not fearing any man.";
+		var stringHolder;
+		var stringIdx = 0;
+		var stringCounter = 0;
+		
+		var characterDelay = 1;		
+		var lineDelay = 60;
+		
+		var currentCounter = 0;
+		var currentDelay = characterDelay;
+		
+		var currentMode = 'PRINTING_LINE';
+		
 		var jerktar_sprite = document.createElement("img");
-		var jerktarParticle = new Particle();
+		var jerktar;
 		
 		function init() {
 			canvas = document.getElementById("jerktar");
 			jerktar_sprite.setAttribute("src", "art/jerktar_sprite.png");
-			for(var i = 0; i < particleCount; i++) {
-				particleArray[i] = new Particle();
-			}
+			jerktar = new Jerktar();
 			draw();
 			setInterval(draw, 22);
+			
+
+				$("span.footnote a").hover(
+					function() {
+						$(this).parent().find("span").fadeIn();
+					},
+					function() {
+						$(this).parent().find("span").fadeOut();
+					}
+				);
+
+				$(document).keydown(function(e) {
+					switch(e.keyCode) {
+						case 39:
+							jerktar.move(3);
+							break;
+						case 37:
+							jerktar.move(-3);
+							break;
+						case 38:
+							jerktar.jump();
+							break;
+						case 32:
+							jerktar.jump();
+							break;
+					}
+				});
+
+		}
+		
+		function Jerktar() {
+			// here's me so far
+			this.x = 200;
+			this.y = 100;
+			
+			this.width = 25;
+			this.height = 66;
+			
+			this.velX = 1;
+			this.velY = 0;
+			
+			this.move = move;
+			this.applyPhysics = applyPhysics;
+			this.update = update;
+			this.jump = jump;
+		}
+		
+		function jump() {
+			if(!this.jumping) {
+				this.velY = -10;
+				this.jumping = true;
+			}
 		}
 		
 		function Particle() {
@@ -79,40 +136,82 @@
 			this.applyGravity = applyGravity;
 		}
 		
-		function applyGravity() {
+		function applyPhysics() {
 			this.velY += gravity;
 			if(this.velY > particleMaxVel) {
 				this.velY = particleMaxVel;
 			}
+			
+			if(this.velX > 0) {
+				this.velX -= friction;
+			} else if(this.velX < 0) {
+				this.velX += friction;
+			}
 		}
 		
-		function move() {
-
-			this.applyGravity();
-
+		function update() {
+			
+			this.applyPhysics();
+			
 			this.x += this.velX;
 			this.y += this.velY;
 			
-			if(this.x + particleSize > canvasWidth || this.x <= 0) {
+			if(this.x + this.width > canvasWidth || this.x <= 0) {
 				this.velX *= -1;
 			}
 			
-			if(this.y + particleSize > canvasHeight || this.y <= 0) {
-				this.velY *= -1;
+			if(this.y + this.height > canvasHeight || this.y <= 0) {
+				this.velY = 0;
+				this.jumping = false;
 			}
 			
-			if(this.x + particleSize > canvasWidth) {
-				this.x = canvasWidth - particleSize;
+			if(this.x + this.width > canvasWidth) {
+				this.x = canvasWidth - this.width;
 			} else if(this.x < 0) {
 				this.x = 0;
 			}
 			
-			if(this.y + particleSize > canvasHeight) {
-				this.y = canvasHeight - particleSize;
+			if(this.y + this.height > canvasHeight) {
+				this.y = canvasHeight - this.height;
 			} else if(this.y < 0) {
 				this.y = 0;
 			}
+		}
+		
+		function move(velX) {
 			
+			this.velX += velX;
+			
+			if(velX > 3) {
+				velX = 3;
+			} else if(velX < -3) {
+				velX = -3;
+			}
+			
+		}
+		
+		function getLines(ctx,phrase,maxPxLength,textStyle) {
+		    var wa=phrase.split(" ");
+		    var phraseArray=new Array();
+		    var lastPhrase="";
+		    ctx.font = textStyle;
+		    var l=maxPxLength;
+		    var measure=0;
+		    for (var i=0;i<wa.length;i++) {
+		        var w=wa[i];
+		        measure=ctx.measureText(lastPhrase+w).width;
+		        if (measure<l) {
+		            lastPhrase+=(" "+w);
+		        }else {
+		            phraseArray.push(lastPhrase);
+		            lastPhrase=w;
+		        }
+		        if (i==wa.length-1) {
+		            phraseArray.push(lastPhrase);
+		            break;
+		        }
+		    }
+		    return phraseArray;
 		}
 		
 		function draw() {
@@ -121,9 +220,43 @@
 				ctx.canvas.width  = canvasWidth;
 				ctx.canvas.height = canvasHeight;
 				ctx.clearRect(0,0,canvasWidth,canvasHeight);
+				
+				ctx.fillStyle    = '#eee';
+				ctx.font         = '10px Press-Start-K';
+				ctx.textBaseline = 'top';
+				
+				if(currentMode == 'PRINTING_LINE') {
+					if(currentCounter >= currentDelay) {
+						stringIdx++;
+						stringHolder = stringArray[stringCounter].substr(0, stringIdx);
+						if(stringHolder.length == stringArray[stringCounter].length && stringCounter < stringArray.length - 1) {
+							stringCounter++;
+							currentMode = 'LINE_PAUSE';
+							currentDelay = lineDelay;
+						}
+						currentCounter = 0;
+					} else {
+						currentCounter++;
+					}
+				} else if(currentMode == 'LINE_PAUSE') {
+					if(currentCounter >= currentDelay) {
+						stringIdx = 0;
+						currentCounter = 0;
+						currentDelay = characterDelay;
+						currentMode = 'PRINTING_LINE';
+					} else {
+						currentCounter++;
+					}
+				}
+
+				
+				ctx.fillText (stringHolder, 5, 5);
+				
+				
 				ctx.fillStyle = "rgb(200,200,200)";
-				jerktarParticle.move();
-				ctx.drawImage(jerktar_sprite, jerktarParticle.x, jerktarParticle.y);
+				jerktar.update();
+				ctx.drawImage(jerktar_sprite, jerktar.x, jerktar.y);
+				ctx.restore();
 				for(var i = 0; i < particleArray.length; i++) {
 					particleArray[i].move();	
 					ctx.fillRect(particleArray[i].x, particleArray[i].y, particleSize, particleSize );
@@ -134,48 +267,69 @@
 </head>
 <body onLoad="init();">
 	<div class="container">
+
 		<div id="header">
 			<h1>Jerktar</h1>
 		</div>
 		<div id="content">
 			
-			<h2>The Beginning</h2>
+			<h2>Still The Beginning</h2>
 			
-			<canvas id="jerktar">
-				
+			<canvas id="jerktar" style="font-family: Press-Start-K">
+		
 			</canvas>
-			<p>This site is going to be sort of a journal, in version-controlled code form.  Every day you'll see today's version of the code,
-				and you can go back and see older ones.  For now, this is just a flat html file, but I think I'll have a CMS eventually.</p>
-		
-			<p>Or maybe not.</p>
-	
-			<p>Maybe each entry should be the actual files from that day.  That'll take a lot of space eventually.  Though I only need to post the
-				changes at the end of the day.  I may even post code that's broken, it's gotta be what it is each day.</p>
-		
-			<p>I think there's a beauty to the way code is stored in repositories.  It's incredible to have a record of all the different slices
-				of an idea like that.  In the comments of my code, there's a story of how I learned to do these things.  Generally, you just
-				see a final product, compiled and delivered.  Blogs are blogs, and games are games.  Who would ever want to play an old
-				version of a game?  Isn't it always just getting better?</p>
-		
-			<p>But what if the versions weren't just linear improvements?  What if a game's development was <em>the whole point</em>, and its 
-				evolution over time the real story.</p>
-	
-			<p>Versions are beautiful.  Every person is a repository of memories.  Constantly making new ones, and forgetting old ones.
-				You basically are your memories, and so you shift and change over time.  It's not an entirely cumulative process.  It's
-				a process of sacrifice and creation.  You stop growing physically when you're around 20.  From that point on, you're just
-				cycling cells.  You're dying, and being replaced.</p>
-		
-			<p>I got this idea in San Francisco, California.  I just moved here on Saturday, November 27th
-				2010.  It's December 3rd today, so I'm still in my first week.  It's fun when people ask me when I moved here to be able to
-				just say a day of the week.  I am surprised I moved so far away after living in Philadelphia so long.  I didn't think I had
-				it in me.  But here I go, creating and destroying.  This is a repository of that process.</p>
+			<p class="instructions">Left goes left, right goes right, up jumps</p>
+			
+				<p>Here's me a few minutes ago atop a hill in Dolores Park.  This isn't really what I was thinking at the time,
+					but after a bit of a walkabout, when I was back near my house, this is the thought I had, and it came to me
+					in 8-bit.  Possibly because I was listening to <a href="http://www.8bitpeoples.com/discography/by/bit_shifter">Bit Shifter's 
+					Information Chase</a> at the time.  Either way, I laughed.</p>
+					
+				<p>Lately, I've felt elated, and it's because the world is <em>so awesome</em>.  The amount of stuff I get to do,
+					and learn about and experience is absurd.</p>
+					
+				<p><em>Absurd.</em></p>
+					
+				<p>You see, because my ancestors, and in fact 99.97% of my ancestors, back to<span class="footnote"><a href="#footnote1" class="footnote">*</a><span>Here's where i googled 'how many generations of humans have existed' and got an answer in about a tenth of a second.  I can actually <em>remember</em> when you couldn't do that, and I still totally take it for granted almost every time.</span></span> 200,000 years ago when a fully formed
+					human being fell out of an ape for some reason (as is my understanding), spent their entire days starving and 
+					scrounging for food, and then died.  There've been about 10,000 generations since the first humans (assuming about 5
+					generations a century for 200,000 years).</p>
+					
+				<p>See, then I come along, and I basically live like a god, like nearly all 21st century human beings.  I wake up in the
+					morning in an enclosed space, in a society based on a widely agreed upon set of rules, where there's a universally
+					accepted form of payment for goods and services.  If someone tries to hurt me physically when I'm outside, there's a whole
+					team of guys whose job it is to help me.  If I need to get to work, there's a vast underground railroad in place for
+					me to do it, I pay a little bit of money and they'll take me anywhere.</p>
+					
+				<p>And they take ANYBODY.  Any human being with $2 can ride the subway in New York to anywhere.</p>
+				
+				<p>It doesn't <em>have</em> to be this way.  Governments like this are still so new!  200 years or so since modern
+					democracy started taking off, of course it's kind of a mess, but man it's so amazing.  Say what you will about our
+					government being corrupt.  Seriously, do it. Go ahead!  You can!  And that's pretty new, dudes.  They used to cut your 
+					fucking head off if	you said something bad about the king.  Things are <em>better</em>.  Everything's so great.</p>
+					
+				<p>And yeah, there's some dynasties still, and there's people with inordinate amounts of power.  But look at our president.
+					He's really a poor black dude that became President of the United States.  That really happened, no family connections,
+					no big conspiracy.  That's awesome.  It really works, you know?</p>
+				
+				<p>The amount of comfort, safety and luxury provided to people is just breathtaking.  And you'd be hard pressed to tell me
+					that even the most impoverished human today isn't better off than they'd have been a few generations ago.  It's getting
+					better everybody.  Everything is getting better.</p>
+					
+				<p>I woke up this morning in San Francisco, and it was like 55 degrees and sunny.  In December.  I wore a hoody and was
+					cozy.  I walked to Dolores Park and looked at the city, the light coming in fast and low through the haze, hitting it 
+					the way an expert gaffer might decide to.  I tried to see it the way almost every human that ever walked on the earth would 
+					see it.	As a god damned fucking <em>miracle</em>.</p>
 				
 			<p class="signature">Yours,<br />
 				Jerktar</p>
-		</div>
-		<div id="canvas">
-			
+				
+				
+				<p><br />PS - still figuring out how old versions are gonna work.  For now, you can see the previous version,
+					which is also the first version, <a href="archive/12.3.10/">by clicking here</a>.  I am definitely gonna need
+					some helper functions that I can mod to link to this shit going forward.</p>
 		</div>
 	</div>
+
 </body>
 </html>

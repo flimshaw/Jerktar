@@ -1,7 +1,18 @@
-body { background-color: #FEE; font-family: courier new, courier, fixed-width; color: #333; }
+@font-face {
+    font-family: Press-Start-K;	
+    src: url(../fonts/Press-Start-K.ttf) format("truetype");
+	font-smooth: never;
+}
+
+
+body { background-color: #FEE; font-family: Courier New, courier, fixed-width; color: #333; line-height: 2em; }
 
 body > .container { width: 950px; margin: 0 auto; }
-
+p.instructions { font-size: .85em; margin: 0; padding: 0; line-height: 1em; font-style: italic; margin-bottom: 1em; border-bottom: 1px solid #ccc; padding-bottom: 1em; }
 #content { width: 630px; margin: 0 10px 0 0; float: left; }
 
-#jerktar { width: 630px;  height: 264px; background-color: #333 }
+#jerktar { width: 630px;  height: 264px; background-image:url(../art/dolores_park_background.png); }
+
+span.footnote { position: relative; }
+span.footnote > a { text-decoration: none; color: #f00; }
+span.footnote span { font-size: .85em; line-height: 1.25em;left: 10px; right: 10px;display: none; width: 200px; border: 1px solid black; position: absolute; background-color: #fff; padding: 15px;}
