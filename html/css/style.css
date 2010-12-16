@@ -11,7 +11,7 @@ body > .container { width: 950px; margin: 0 auto; }
 p.instructions { font-size: .85em; margin: 0; padding: 0; line-height: 1em; font-style: italic; margin-bottom: 1em; border-bottom: 1px solid #ccc; padding-bottom: 1em; }
 #content { width: 630px; margin: 0 10px 0 0; float: left; }
 
-#jerktar { width: 630px;  height: 264px; background-image:url(../art/dolores_park_background.png); }
+#jerktar { width: 630px;  height: 264px; background-color: #333; }
 
 span.footnote { position: relative; }
 span.footnote > a { text-decoration: none; color: #f00; }

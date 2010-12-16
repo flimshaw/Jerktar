@@ -6,266 +6,22 @@
 	<link rel="stylesheet" href="/css/style.css" type="text/css" media="screen" title="no title" charset="utf-8">
 
 	<script src="/js/jquery-1.4.4.min.js" type="text/javascript" charset="utf-8"></script>
-	<script type="application/javascript" charset="utf-8">
+	<script src="/js/jerktar-bouncer.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
 
-		var canvas;
-		var canvasWidth = 630;
-		var canvasHeight = 264;
-		
-		var counter = 0;
-		var particleSize = 3; 
-		var particleCount = 100;
-		var particleMaxVel = 5;
-		
-		var gravity = .5;
-		var friction = .05;
-		
-		var velX = 5;
-		var velY = 5;
-		var xPos = 0;
-		var yPos = 0;
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-608903-9']);
+	  _gaq.push(['_trackPageview']);
 
-		var particleArray = new Array();
-		
-		var stringArray = new Array(
-			"What was that MLK speech?",
-			"\"And I've looked over. And I've seen the promised land.",
-			"I may not get there with you. But I want you to know tonight,",
-			"that we, as a people, will get to the promised land.",
-			"And I'm happy, tonight.",
-			"I'm not worried about anything.",
-			"I'm not fearing any man.\"",
-			"**SIGH**",
-			"Someday, Starfleet Headquarters will be here."			
-		);
-		
-		var string1 = "Someday, Starfleet Headquarters will be here.";
-		var string2 = "And I've looked over. And I've seen the promised land. I may not get there with you. But I want you to know tonight, that we, as a people, will get to the promised land. And I'm happy, tonight. I'm not worried about anything. I'm not fearing any man.";
-		var stringHolder;
-		var stringIdx = 0;
-		var stringCounter = 0;
-		
-		var characterDelay = 1;		
-		var lineDelay = 60;
-		
-		var currentCounter = 0;
-		var currentDelay = characterDelay;
-		
-		var currentMode = 'PRINTING_LINE';
-		
-		var jerktar_sprite = document.createElement("img");
-		var jerktar;
-		
-		function init() {
-			canvas = document.getElementById("jerktar");
-			jerktar_sprite.setAttribute("src", "art/jerktar_sprite.png");
-			jerktar = new Jerktar();
-			draw();
-			setInterval(draw, 22);
-			
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
 
-				$("span.footnote a").hover(
-					function() {
-						$(this).parent().find("span").fadeIn();
-					},
-					function() {
-						$(this).parent().find("span").fadeOut();
-					}
-				);
-
-				$(document).keydown(function(e) {
-					switch(e.keyCode) {
-						case 39:
-							jerktar.move(3);
-							break;
-						case 37:
-							jerktar.move(-3);
-							break;
-						case 38:
-							jerktar.jump();
-							break;
-						case 32:
-							jerktar.jump();
-							break;
-					}
-				});
-
-		}
-		
-		function Jerktar() {
-			// here's me so far
-			this.x = 200;
-			this.y = 100;
-			
-			this.width = 25;
-			this.height = 66;
-			
-			this.velX = 1;
-			this.velY = 0;
-			
-			this.move = move;
-			this.applyPhysics = applyPhysics;
-			this.update = update;
-			this.jump = jump;
-		}
-		
-		function jump() {
-			if(!this.jumping) {
-				this.velY = -10;
-				this.jumping = true;
-			}
-		}
-		
-		function Particle() {
-			this.x = Math.floor(Math.random() * (canvasWidth - particleSize));
-			this.y = Math.floor(Math.random() * (canvasHeight - particleSize)); 
-			
-			this.velX = 0;
-			this.velY = 0;
-			
-			while(this.velX == 0 || this.velY == 0) {
-				if(this.velX == 0) {
-					this.velX = Math.floor((Math.random() * particleMaxVel) - (particleMaxVel / 2));
-				}
-				if(this.velY == 0) {
-					this.velY = Math.floor((Math.random() * particleMaxVel) - (particleMaxVel / 2));
-				}
-			}
-			
-			this.move = move;
-			this.applyGravity = applyGravity;
-		}
-		
-		function applyPhysics() {
-			this.velY += gravity;
-			if(this.velY > particleMaxVel) {
-				this.velY = particleMaxVel;
-			}
-			
-			if(this.velX > 0) {
-				this.velX -= friction;
-			} else if(this.velX < 0) {
-				this.velX += friction;
-			}
-		}
-		
-		function update() {
-			
-			this.applyPhysics();
-			
-			this.x += this.velX;
-			this.y += this.velY;
-			
-			if(this.x + this.width > canvasWidth || this.x <= 0) {
-				this.velX *= -1;
-			}
-			
-			if(this.y + this.height > canvasHeight || this.y <= 0) {
-				this.velY = 0;
-				this.jumping = false;
-			}
-			
-			if(this.x + this.width > canvasWidth) {
-				this.x = canvasWidth - this.width;
-			} else if(this.x < 0) {
-				this.x = 0;
-			}
-			
-			if(this.y + this.height > canvasHeight) {
-				this.y = canvasHeight - this.height;
-			} else if(this.y < 0) {
-				this.y = 0;
-			}
-		}
-		
-		function move(velX) {
-			
-			this.velX += velX;
-			
-			if(velX > 3) {
-				velX = 3;
-			} else if(velX < -3) {
-				velX = -3;
-			}
-			
-		}
-		
-		function getLines(ctx,phrase,maxPxLength,textStyle) {
-		    var wa=phrase.split(" ");
-		    var phraseArray=new Array();
-		    var lastPhrase="";
-		    ctx.font = textStyle;
-		    var l=maxPxLength;
-		    var measure=0;
-		    for (var i=0;i<wa.length;i++) {
-		        var w=wa[i];
-		        measure=ctx.measureText(lastPhrase+w).width;
-		        if (measure<l) {
-		            lastPhrase+=(" "+w);
-		        }else {
-		            phraseArray.push(lastPhrase);
-		            lastPhrase=w;
-		        }
-		        if (i==wa.length-1) {
-		            phraseArray.push(lastPhrase);
-		            break;
-		        }
-		    }
-		    return phraseArray;
-		}
-		
-		function draw() {
-			if(canvas.getContext) {
-				var ctx = canvas.getContext("2d");
-				ctx.canvas.width  = canvasWidth;
-				ctx.canvas.height = canvasHeight;
-				ctx.clearRect(0,0,canvasWidth,canvasHeight);
-				
-				ctx.fillStyle    = '#eee';
-				ctx.font         = '10px Press-Start-K';
-				ctx.textBaseline = 'top';
-				
-				if(currentMode == 'PRINTING_LINE') {
-					if(currentCounter >= currentDelay) {
-						stringIdx++;
-						stringHolder = stringArray[stringCounter].substr(0, stringIdx);
-						if(stringHolder.length == stringArray[stringCounter].length && stringCounter < stringArray.length - 1) {
-							stringCounter++;
-							currentMode = 'LINE_PAUSE';
-							currentDelay = lineDelay;
-						}
-						currentCounter = 0;
-					} else {
-						currentCounter++;
-					}
-				} else if(currentMode == 'LINE_PAUSE') {
-					if(currentCounter >= currentDelay) {
-						stringIdx = 0;
-						currentCounter = 0;
-						currentDelay = characterDelay;
-						currentMode = 'PRINTING_LINE';
-					} else {
-						currentCounter++;
-					}
-				}
-
-				
-				ctx.fillText (stringHolder, 5, 5);
-				
-				
-				ctx.fillStyle = "rgb(200,200,200)";
-				jerktar.update();
-				ctx.drawImage(jerktar_sprite, jerktar.x, jerktar.y);
-				ctx.restore();
-				for(var i = 0; i < particleArray.length; i++) {
-					particleArray[i].move();	
-					ctx.fillRect(particleArray[i].x, particleArray[i].y, particleSize, particleSize );
-				}				
-			}
-		}
 	</script>
 </head>
-<body onLoad="init();">
+<body>
 	<div class="container">
 
 		<div id="header">
@@ -273,63 +29,62 @@
 		</div>
 		<div id="content">
 			
-			<h2>Still The Beginning</h2>
+			<h2>Moving forward slowly and poorly</h2>
 			
 			<canvas id="jerktar" style="font-family: Press-Start-K">
-		
+				
 			</canvas>
-			<p class="instructions">Left goes left, right goes right, up jumps</p>
+			<p class="instructions">who knows what this will be</p>
 			
-				<p>Here's me a few minutes ago atop a hill in Dolores Park.  This isn't really what I was thinking at the time,
-					but after a bit of a walkabout, when I was back near my house, this is the thought I had, and it came to me
-					in 8-bit.  Possibly because I was listening to <a href="http://www.8bitpeoples.com/discography/by/bit_shifter">Bit Shifter's 
-					Information Chase</a> at the time.  Either way, I laughed.</p>
-					
-				<p>Lately, I've felt elated, and it's because the world is <em>so awesome</em>.  The amount of stuff I get to do,
-					and learn about and experience is absurd.</p>
-					
-				<p><em>Absurd.</em></p>
-					
-				<p>You see, because my ancestors, and in fact 99.97% of my ancestors, back to<span class="footnote"><a href="#footnote1" class="footnote">*</a><span>Here's where i googled 'how many generations of humans have existed' and got an answer in about a tenth of a second.  I can actually <em>remember</em> when you couldn't do that, and I still totally take it for granted almost every time.</span></span> 200,000 years ago when a fully formed
-					human being fell out of an ape for some reason (as is my understanding), spent their entire days starving and 
-					scrounging for food, and then died.  There've been about 10,000 generations since the first humans (assuming about 5
-					generations a century for 200,000 years).</p>
-					
-				<p>See, then I come along, and I basically live like a god, like nearly all 21st century human beings.  I wake up in the
-					morning in an enclosed space, in a society based on a widely agreed upon set of rules, where there's a universally
-					accepted form of payment for goods and services.  If someone tries to hurt me physically when I'm outside, there's a whole
-					team of guys whose job it is to help me.  If I need to get to work, there's a vast underground railroad in place for
-					me to do it, I pay a little bit of money and they'll take me anywhere.</p>
-					
-				<p>And they take ANYBODY.  Any human being with $2 can ride the subway in New York to anywhere.</p>
+			<h3>December 13th</h3>
+			<p>A couple minutes of downtime.  I've been travelling for the whole weekend, New York and back. Suddenly being
+				back in The Mission on Saturday night, walking home with a burrito after waking up hung over in a hotel room
+				in New York was sorta stunning.  The universe allows me too much freedom.</p>
 				
-				<p>It doesn't <em>have</em> to be this way.  Governments like this are still so new!  200 years or so since modern
-					democracy started taking off, of course it's kind of a mess, but man it's so amazing.  Say what you will about our
-					government being corrupt.  Seriously, do it. Go ahead!  You can!  And that's pretty new, dudes.  They used to cut your 
-					fucking head off if	you said something bad about the king.  Things are <em>better</em>.  Everything's so great.</p>
-					
-				<p>And yeah, there's some dynasties still, and there's people with inordinate amounts of power.  But look at our president.
-					He's really a poor black dude that became President of the United States.  That really happened, no family connections,
-					no big conspiracy.  That's awesome.  It really works, you know?</p>
+			<hr />
 				
-				<p>The amount of comfort, safety and luxury provided to people is just breathtaking.  And you'd be hard pressed to tell me
-					that even the most impoverished human today isn't better off than they'd have been a few generations ago.  It's getting
-					better everybody.  Everything is getting better.</p>
-					
-				<p>I woke up this morning in San Francisco, and it was like 55 degrees and sunny.  In December.  I wore a hoody and was
-					cozy.  I walked to Dolores Park and looked at the city, the light coming in fast and low through the haze, hitting it 
-					the way an expert gaffer might decide to.  I tried to see it the way almost every human that ever walked on the earth would 
-					see it.	As a god damned fucking <em>miracle</em>.</p>
+			<p><em>Two days later...</em></p>
+			
+			<hr />
 				
-			<p class="signature">Yours,<br />
-				Jerktar</p>
+			<h3>December 15th</h3>
+			<p>I've spent my downtime today making scripts for my computer, because it suddenly dawned on me that I could
+				use Dropbox to sync my .bash_history and .bash_profile and, consequently, paths and aliases and all kinds
+				of stuff.  I set it up on my work computer and my old MBP, so now they share a bash history.  I've started
+				trying to get a few scripts together to automate some of the command-line stuff I do every day, all day.
+				This is good for a few reasons I think.  1 is, I do a LOT of different stuff on the command-line, and, I 
+				mean, real hackers don't seem to have any problem jumping around and knowing this stuff, and maybe it'll
+				become second nature for me later, but I find that I have a really hard time switching between different
+				programming languages or sets of tools. The other day, another dev at my office was asking me to do some
+				simple MySQL stuff, but I hadn't touched the console in forever so a lot of it was gone.  But now that I
+				know how to use it, it's really powerful.  The Django shell.  Man, I underestimated that thing.  So great
+				for learning how python works and quickly testing different syntaxes or object types or whatever.  For when
+				json is being cranky.  Which is always.  MORE LIKE <em>NERDTAR</em>! AM I RIGHT?</p>
+				
+			<p>I have been thinking about how best to publish this site.  I have no ideas still, but this command-line stuff
+				has been making me want to integrate that somehow, or at least use it to automate the process if it happens
+				to be tedious.</p>
+				
+			<p>I guess what I want to do is tweak the site as much as I want, and then have it archived in its entirety to
+				a subfolder somewhere that'll still be accessible.  A database element would be great, but I worry about it.
+				I guess I could just have a sqllite one or something, with files that are included in the repo itself. I
+				dunno.  I don't.  What am I even writing about.</p>
+				
+			<p><a href="http://www.youtube.com/watch?v=jbkSRLYSojo&feature=player_embedded">This video about the last 200
+				years of human progress</a> came to my attention in a pretty timely manner considering the last post I
+				made.  This guy is so into it!  And the graph is pretty compelling.</p>
+				
+			<p>This morning, I was listening to some stone cold motown and walking to the subway.  It was sunny and warm
+				in December.  And I listened to music on my headphones, something only a couple generations have ever been
+				able to do.  It felt like all of humanity had been surging, hundreds of generations behind me pushing me
+				up to a stunning crescendo.  Somehow.  Even though all I was doing was getting coffee and going into work
+				late.</p>
 				
 				
-				<p><br />PS - still figuring out how old versions are gonna work.  For now, you can see the previous version,
-					which is also the first version, <a href="archive/12.3.10/">by clicking here</a>.  I am definitely gonna need
-					some helper functions that I can mod to link to this shit going forward.</p>
+			
 		</div>
 	</div>
+
 
 </body>
 </html>
